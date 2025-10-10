@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'barang_detail.dart';
+import '../widgets/battery_indicator.dart';
 
 class BarangScreen extends StatefulWidget {
   const BarangScreen({super.key});
@@ -12,6 +14,7 @@ class _BarangScreenState extends State<BarangScreen> {
   GoogleMapController? _controller;
 
   int _currentIndex = 1; // default aktif di halaman Barang
+  int batteryLevel = 95; // contoh persentase baterai untuk daftar
 
   // Lokasi barang (contoh: Jl. Affandi, Yogyakarta)
   final LatLng barangLocation = const LatLng(-7.7828, 110.3671);
@@ -105,98 +108,140 @@ class _BarangScreenState extends State<BarangScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              // Card barang
+                              // Daftar barang (contoh sederhana)
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 20,
                                 ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 18,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(18),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color.fromRGBO(
-                                          0,
-                                          0,
-                                          0,
-                                          0.1,
-                                        ),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      // Kiri: Icon + info
-                                      Row(
-                                        children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.pink[100],
-                                              shape: BoxShape.circle,
-                                            ),
-                                            padding: const EdgeInsets.all(10),
-                                            child: const Icon(
-                                              Icons.vpn_key,
-                                              color: Colors.pink,
-                                              size: 28,
+                                child: Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        // Buka halaman detail untuk item KEY
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => BarangDetailScreen(
+                                              title: 'KEY',
+                                              location: barangLocation,
+                                              address:
+                                                  'Jl. DS Nologaten no.ct 14/47 kb. Sleman, Yogyakarta',
+                                              statusText: 'Dengan anda',
                                             ),
                                           ),
-                                          const SizedBox(width: 12),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Text(
-                                                'KEY',
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                              const Text(
-                                                'Lokasi Terakhir',
-                                                style: TextStyle(
-                                                  color: Colors.black54,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      // Kanan: Status
-                                      Container(
+                                        );
+                                      },
+                                      child: Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
+                                          horizontal: 16,
+                                          vertical: 14,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.pink[100],
+                                          color: Colors.white,
                                           borderRadius: BorderRadius.circular(
-                                            12,
+                                            14,
                                           ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.08,
+                                              ),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
                                         ),
-                                        child: const Text(
-                                          'Dengan anda',
-                                          style: TextStyle(
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.pink[100],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  padding: const EdgeInsets.all(
+                                                    10,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.vpn_key,
+                                                    color: Colors.pink,
+                                                    size: 28,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: const [
+                                                    Text(
+                                                      'KEY',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4),
+                                                    Text(
+                                                      'Lokasi Terakhir',
+                                                      style: TextStyle(
+                                                        color: Colors.black54,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.pink[100],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Dengan anda',
+                                                    style: TextStyle(
+                                                      color: Colors.black87,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                // Battery indicator widget
+                                                BatteryIndicator(
+                                                  level: batteryLevel,
+                                                  width: 28,
+                                                  height: 12,
+                                                  fillColor: Colors.black,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 20),
