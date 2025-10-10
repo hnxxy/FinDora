@@ -46,10 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Text(
                         'Notifikasi perangkat',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
                       ),
                       Switch(
                         value: localDeviceNotification,
@@ -71,10 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Text(
                         'Notifikasi Baterai',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
+                        style: TextStyle(fontSize: 16, color: Colors.black87),
                       ),
                       Switch(
                         value: localBatteryNotification,
@@ -104,8 +98,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
-
 
   @override
   void initState() {
@@ -192,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Google Maps
                   GoogleMap(
                     initialCameraPosition: CameraPosition(
-                      target: currentLocation != null 
+                      target: currentLocation != null
                           ? LatLng(
                               currentLocation!.latitude!,
                               currentLocation!.longitude!,
@@ -204,18 +196,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     myLocationButtonEnabled: true,
                     zoomControlsEnabled: false,
                     compassEnabled: false,
-                    markers: currentLocation != null ? {
-                      Marker(
-                        markerId: const MarkerId("me"),
-                        position: LatLng(
-                          currentLocation!.latitude!,
-                          currentLocation!.longitude!,
-                        ),
-                        infoWindow: const InfoWindow(title: "Saya"),
-                        icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueRed),
-                      ),
-                    } : {},
+                    markers: currentLocation != null
+                        ? {
+                            Marker(
+                              markerId: const MarkerId("me"),
+                              position: LatLng(
+                                currentLocation!.latitude!,
+                                currentLocation!.longitude!,
+                              ),
+                              infoWindow: const InfoWindow(title: "Saya"),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueRed,
+                              ),
+                            ),
+                          }
+                        : {},
                     onMapCreated: (controller) {
                       _controller = controller;
                       if (currentLocation != null) {
@@ -243,7 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       return Container(
                         decoration: BoxDecoration(
                           color: Colors.pink[200],
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
@@ -258,7 +255,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               // Handle bar (white slide bar)
                               Container(
-                                margin: const EdgeInsets.only(top: 10, bottom: 20),
+                                margin: const EdgeInsets.only(
+                                  top: 10,
+                                  bottom: 20,
+                                ),
                                 width: 40,
                                 height: 5,
                                 decoration: BoxDecoration(
@@ -268,26 +268,36 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               // Content
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
                                 child: Column(
                                   children: [
                                     // KEY Card
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 18),
+                                        horizontal: 16,
+                                        vertical: 18,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(18),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: const Color.fromRGBO(0, 0, 0, 0.1),
+                                            color: const Color.fromRGBO(
+                                              0,
+                                              0,
+                                              0,
+                                              0.1,
+                                            ),
                                             blurRadius: 6,
                                             offset: const Offset(0, 3),
                                           ),
                                         ],
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           // Left section: Icon + text
                                           Row(
@@ -297,26 +307,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   color: Colors.pink[100],
                                                   shape: BoxShape.circle,
                                                 ),
-                                                padding: const EdgeInsets.all(10),
-                                                child: const Icon(Icons.vpn_key,
-                                                    color: Colors.pink, size: 28),
+                                                padding: const EdgeInsets.all(
+                                                  10,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.vpn_key,
+                                                  color: Colors.pink,
+                                                  size: 28,
+                                                ),
                                               ),
                                               const SizedBox(width: 12),
                                               Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   const Text(
                                                     'KEY',
                                                     style: TextStyle(
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       color: Colors.black87,
                                                     ),
                                                   ),
                                                   Row(
                                                     children: const [
-                                                      Icon(Icons.circle,
-                                                          color: Colors.green, size: 10),
+                                                      Icon(
+                                                        Icons.circle,
+                                                        color: Colors.green,
+                                                        size: 10,
+                                                      ),
                                                       SizedBox(width: 4),
                                                       Text(
                                                         'Online',
@@ -335,8 +355,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                           // Right section: Battery + arrow
                                           Row(
                                             children: const [
-                                              Icon(Icons.battery_full,
-                                                  color: Colors.green, size: 26),
+                                              Icon(
+                                                Icons.battery_full,
+                                                color: Colors.green,
+                                                size: 26,
+                                              ),
                                               SizedBox(width: 4),
                                               Text(
                                                 '95%',
@@ -346,8 +369,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                               ),
                                               SizedBox(width: 4),
-                                              Icon(Icons.arrow_forward_ios,
-                                                  color: Colors.pink, size: 16),
+                                              Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Colors.pink,
+                                                size: 16,
+                                              ),
                                             ],
                                           ),
                                         ],
@@ -361,14 +387,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                       onPressed: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const TambahItem(),
+                                          builder: (context) =>
+                                              const TambahItem(),
                                         ),
                                       ),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF8B4C5C),
-                                        minimumSize: const Size(double.infinity, 56),
+                                        backgroundColor: const Color(
+                                          0xFF8B4C5C,
+                                        ),
+                                        minimumSize: const Size(
+                                          double.infinity,
+                                          56,
+                                        ),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                         ),
                                       ),
                                       child: const Text(
@@ -381,7 +415,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
 
-                                    const SizedBox(height: 20), // Extra space for scrolling
+                                    const SizedBox(
+                                      height: 20,
+                                    ), // Extra space for scrolling
                                   ],
                                 ),
                               ),
