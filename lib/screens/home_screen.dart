@@ -17,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool deviceNotification = true;
   bool batteryNotification = true;
+  int _currentIndex = 0;
 
   void _showNotificationDialog() {
     showDialog(
@@ -400,6 +401,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Bottom navigation bar
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          // Jika klik Home (index 0) -> navigasi ke '/home'
+          if (index == 0) {
+            final currentRoute = ModalRoute.of(context)?.settings.name;
+            if (currentRoute != '/home') {
+              // Replace current route with /home untuk menghindari penumpukan
+              Navigator.pushReplacementNamed(context, '/home');
+            } else {
+              setState(() {
+                _currentIndex = index;
+              });
+            }
+            return;
+          }
+
+          // Jika klik Pesan (index 1) -> navigasi ke '/barang'
+          if (index == 1) {
+            final currentRoute = ModalRoute.of(context)?.settings.name;
+            if (currentRoute != '/barang') {
+              Navigator.pushNamed(context, '/barang');
+            } else {
+              setState(() {
+                _currentIndex = index;
+              });
+            }
+            return;
+          }
+
+          // Untuk index lain (mis. profil), cukup update state
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         backgroundColor: Colors.pink[200],
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,

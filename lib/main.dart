@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/barang_screen.dart'; // Tambahan
 
 void main() {
   runApp(const FindoraApp());
@@ -25,6 +26,7 @@ class FindoraApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
+        '/barang': (context) => const BarangScreen(), // Tambahan
       },
     );
   }

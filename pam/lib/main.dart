@@ -7,7 +7,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             deviceNotification = value;
                           });
                         },
-                        activeColor: Colors.pink,
+                        activeThumbColor: Colors.pink,
                       ),
                     ],
                   ),
@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             batteryNotification = value;
                           });
                         },
-                        activeColor: Colors.pink,
+                        activeThumbColor: Colors.pink,
                       ),
                     ],
                   ),
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _controller?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
-          target: LatLng(newLoc!.latitude!, newLoc.longitude!),
+          target: LatLng(newLoc.latitude!, newLoc.longitude!),
           zoom: 17,
         ),
       ),
