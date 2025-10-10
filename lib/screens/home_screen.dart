@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'Tambah_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -357,7 +358,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                     // Tambahkan Barang Button
                                     ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const TambahItem(),
+                                        ),
+                                      ),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFF8B4C5C),
                                         minimumSize: const Size(double.infinity, 56),
