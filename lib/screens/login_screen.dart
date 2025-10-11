@@ -24,19 +24,12 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // LOGO
-                  Container(
-                    height: 150,
-                    width: 150,
-                    decoration: BoxDecoration(
-                      color: const Color.fromRGBO(255, 255, 255, 0.3),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        'assets/logo.png', // ganti dengan lokasi logo kamu
-                        fit: BoxFit.cover,
-                      ),
+                  SizedBox(
+                    height: 200,
+                    width: 200,
+                    child: Image.asset(
+                      'assets/logo_findora.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
 

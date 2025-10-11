@@ -28,7 +28,7 @@ class LoginEmail extends StatelessWidget {
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    Navigator.pop(context); // kembali ke LoginScreen
+                    Navigator.pop(context);
                   },
                 ),
               ),
@@ -40,20 +40,13 @@ class LoginEmail extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // LOGO
-                      Container(
-                        height: 150,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(255, 255, 255, 0.3),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.asset(
-                            'assets/logo.png',
-                            fit: BoxFit.cover,
-                          ),
+                      // 🖼 LOGO FINDORA
+                      SizedBox(
+                        height: 200, // diperbesar dari 160
+                        width: 200,
+                        child: Image.asset(
+                          'assets/logo_findora.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
 
@@ -62,14 +55,14 @@ class LoginEmail extends StatelessWidget {
                       const Text(
                         'WELCOME',
                         style: TextStyle(
-                          fontSize: 26,
+                          fontSize: 30,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: 1.5,
                         ),
                       ),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 20),
 
                       // EMAIL INPUT
                       TextField(
