@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import '../widgets/battery_indicator.dart';
 import 'home_screen.dart';
 
@@ -26,6 +29,11 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
   bool notificationEnabled = true;
   int _currentIndex = 1;
   int batteryLevel = 95;
+  File? _lockImage;
+  final ImagePicker _picker = ImagePicker();
+  late TextEditingController _nameController;
+  late String _currentTitle;
+  late String _currentAddress;
 
   // Fungsi popup konfirmasi hapus
   void _showDeleteConfirmation() {
@@ -88,6 +96,245 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
               const SizedBox(height: 10),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTitle = widget.title;
+    _currentAddress = widget.address;
+    _nameController = TextEditingController(text: _currentTitle);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? picked = await _picker.pickImage(
+      source: source,
+      imageQuality: 80,
+    );
+    if (picked != null) {
+      setState(() {
+        _lockImage = File(picked.path);
+      });
+    }
+  }
+
+  void _openEditSheet(BuildContext context) {
+    _nameController.text = _currentTitle;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.3,
+          maxChildSize: 0.95,
+          builder: (context, controller) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.pink[200],
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+              child: SingleChildScrollView(
+                controller: controller,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 48,
+                        height: 6,
+                        margin: const EdgeInsets.only(top: 8, bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        'Edit Barang',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Stack(
+                        children: [
+                          // Jika ada gambar kunci yang dipilih, tampilkan gambarnya.
+                          // Kalau tidak, gunakan gaya yang sama dengan di home: lingkaran pink dengan ikon kunci.
+                          if (_lockImage != null)
+                            CircleAvatar(
+                              radius: 48,
+                              backgroundColor: Colors.white,
+                              backgroundImage: FileImage(_lockImage!),
+                            )
+                          else
+                            Container(
+                              width: 96,
+                              height: 96,
+                              decoration: BoxDecoration(
+                                color: Colors.pink[100],
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.vpn_key,
+                                  color: Colors.pink,
+                                  size: 36,
+                                ),
+                              ),
+                            ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: GestureDetector(
+                              onTap: () async {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (c) => SafeArea(
+                                    child: Wrap(
+                                      children: [
+                                        ListTile(
+                                          leading: const Icon(
+                                            Icons.photo_library,
+                                          ),
+                                          title: const Text(
+                                            'Pilih dari Galeri',
+                                          ),
+                                          onTap: () {
+                                            Navigator.of(c).pop();
+                                            _pickImage(ImageSource.gallery);
+                                          },
+                                        ),
+                                        ListTile(
+                                          leading: const Icon(Icons.camera_alt),
+                                          title: const Text('Ambil Foto'),
+                                          onTap: () {
+                                            Navigator.of(c).pop();
+                                            _pickImage(ImageSource.camera);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: CircleAvatar(
+                                radius: 16,
+                                backgroundColor: Colors.black87,
+                                child: const Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Nama Barang',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Alamat Barang',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: TextEditingController(text: _currentAddress),
+                      enabled: false,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: const Icon(Icons.lock),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[300],
+                              foregroundColor: Colors.black87,
+                            ),
+                            child: const Text('Batalkan'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _currentTitle =
+                                    _nameController.text.trim().isEmpty
+                                    ? _currentTitle
+                                    : _nameController.text.trim();
+                              });
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(this.context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Perubahan disimpan'),
+                                  backgroundColor: Colors.pink[300],
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black87,
+                            ),
+                            child: const Text('Simpan'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -386,23 +633,27 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                               ),
                                             ),
                                             const SizedBox(height: 8),
-                                            Container(
-                                              width: double.infinity,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 14,
+                                            GestureDetector(
+                                              onTap: () =>
+                                                  _openEditSheet(context),
+                                              child: Container(
+                                                width: double.infinity,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 14,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.pink[50],
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: const Text(
+                                                  'Edit Barang ini',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: Colors.black87,
                                                   ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.pink[50],
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: const Text(
-                                                'Edit Barang ini',
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  color: Colors.black87,
                                                 ),
                                               ),
                                             ),
