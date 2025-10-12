@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../widgets/battery_indicator.dart';
+import 'home_screen.dart';
 
-/// BarangDetailScreen - shows a map and a draggable bottom sheet
-/// matching the provided mockup: emoji title, close button, online + battery,
-/// large Petunjuk Arah button, notification switch, and rounded Hapus/Edit tiles.
 class BarangDetailScreen extends StatefulWidget {
   final String title;
   final LatLng location;
@@ -29,13 +27,78 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
   int _currentIndex = 1;
   int batteryLevel = 95;
 
+  // Fungsi popup konfirmasi hapus
+  void _showDeleteConfirmation() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Yakin ingin menghapus barang?',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // tutup popup
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${widget.title} berhasil dihapus'),
+                            backgroundColor: Colors.pink[300],
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink[300],
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text('Ya'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.black87,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text('Tidak'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            // Top header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               color: Colors.pink[200],
@@ -52,8 +115,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                 ],
               ),
             ),
-
-            // Map + draggable sheet
             Expanded(
               child: Stack(
                 children: [
@@ -72,7 +133,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                     onMapCreated: (c) => _controller = c,
                     zoomControlsEnabled: false,
                   ),
-
                   DraggableScrollableSheet(
                     initialChildSize: 0.36,
                     minChildSize: 0.36,
@@ -96,7 +156,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                           controller: controller,
                           child: Column(
                             children: [
-                              // handle
                               Container(
                                 margin: const EdgeInsets.only(
                                   top: 10,
@@ -109,8 +168,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-
-                              // sheet content
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
@@ -130,7 +187,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      // title row + close
                                       Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
@@ -184,10 +240,7 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                           ),
                                         ],
                                       ),
-
                                       const SizedBox(height: 10),
-
-                                      // online + battery
                                       Row(
                                         children: [
                                           const Text(
@@ -214,10 +267,7 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                           ),
                                         ],
                                       ),
-
                                       const SizedBox(height: 14),
-
-                                      // Petunjuk Arah
                                       ElevatedButton(
                                         onPressed: () {},
                                         style: ElevatedButton.styleFrom(
@@ -241,7 +291,7 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                                 color: Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(30),
-                                                boxShadow: [
+                                                boxShadow: const [
                                                   BoxShadow(
                                                     color: Colors.black12,
                                                     blurRadius: 4,
@@ -271,10 +321,7 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                           ],
                                         ),
                                       ),
-
                                       const SizedBox(height: 12),
-
-                                      // Notification toggle
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
@@ -306,32 +353,35 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                           ],
                                         ),
                                       ),
-
                                       const SizedBox(height: 12),
 
-                                      // Hapus & Edit
+                                      // 🔥 Tombol Hapus + Popup
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 6,
                                         ),
                                         child: Column(
                                           children: [
-                                            Container(
-                                              width: double.infinity,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 14,
+                                            GestureDetector(
+                                              onTap: _showDeleteConfirmation,
+                                              child: Container(
+                                                width: double.infinity,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 14,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.pink[100],
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: const Text(
+                                                  'Hapus Barang ini',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: Colors.black87,
                                                   ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.pink[100],
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: const Text(
-                                                'Hapus Barang ini',
-                                                style: TextStyle(
-                                                  color: Colors.black87,
                                                 ),
                                               ),
                                             ),
@@ -350,6 +400,7 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                               ),
                                               child: const Text(
                                                 'Edit Barang ini',
+                                                textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                   color: Colors.black87,
                                                 ),
@@ -358,7 +409,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                           ],
                                         ),
                                       ),
-
                                       const SizedBox(height: 20),
                                     ],
                                   ),
@@ -376,32 +426,17 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
           ],
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           if (index == 0) {
-            final currentRoute = ModalRoute.of(context)?.settings.name;
-            if (currentRoute != '/home') {
-              Navigator.pushReplacementNamed(context, '/home');
-            } else {
-              setState(() {
-                _currentIndex = index;
-              });
-            }
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
             return;
           }
-
-          if (index == 1) {
-            setState(() {
-              _currentIndex = index;
-            });
-            return;
-          }
-
-          setState(() {
-            _currentIndex = index;
-          });
+          setState(() => _currentIndex = index);
         },
         backgroundColor: Colors.pink[200],
         selectedItemColor: Colors.white,
