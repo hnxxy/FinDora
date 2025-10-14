@@ -3,7 +3,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'Tambah_item.dart';
 import 'barang_screen.dart';
-import 'profil_page.dart';
+import 'saya_.screen.dart';
+import 'barang_detail.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool deviceNotification = true;
   bool batteryNotification = true;
   int _currentIndex = 0;
+
+  // Lokasi barang (contoh: Jl. Affandi, Yogyakarta)
+  final LatLng barangLocation = const LatLng(-7.7828, 110.3671);
 
   void _showNotificationDialog() {
     showDialog(
@@ -267,100 +271,116 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 20),
                                 child: Column(
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 18,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(18),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: const Color.fromRGBO(0, 0, 0, 0.1),
-                                            blurRadius: 6,
-                                            offset: const Offset(0, 3),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => BarangDetailScreen(
+                                              title: 'KEY',
+                                              location: barangLocation,
+                                              address:
+                                                  'Jl. DS Nologaten no.ct 14/47 kb. Sleman, Yogyakarta',
+                                              statusText: 'Dengan anda',
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.pink[100],
-                                                  shape: BoxShape.circle,
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 18,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(18),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color.fromRGBO(0, 0, 0, 0.1),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.pink[100],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.all(10),
+                                                  child: const Icon(
+                                                    Icons.vpn_key,
+                                                    color: Colors.pink,
+                                                    size: 28,
+                                                  ),
                                                 ),
-                                                padding:
-                                                    const EdgeInsets.all(10),
-                                                child: const Icon(
-                                                  Icons.vpn_key,
-                                                  color: Colors.pink,
-                                                  size: 28,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    'KEY',
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black87,
+                                                const SizedBox(width: 12),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Text(
+                                                      'KEY',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Row(
-                                                    children: const [
-                                                      Icon(
-                                                        Icons.circle,
-                                                        color: Colors.green,
-                                                        size: 10,
-                                                      ),
-                                                      SizedBox(width: 4),
-                                                      Text(
-                                                        'Online',
-                                                        style: TextStyle(
-                                                          color: Colors.black54,
-                                                          fontSize: 14,
+                                                    Row(
+                                                      children: const [
+                                                        Icon(
+                                                          Icons.circle,
+                                                          color: Colors.green,
+                                                          size: 10,
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: const [
-                                              Icon(
-                                                Icons.battery_full,
-                                                color: Colors.green,
-                                                size: 26,
-                                              ),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                '95%',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black87,
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          'Online',
+                                                          style: TextStyle(
+                                                            color: Colors.black54,
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                              SizedBox(width: 4),
-                                              Icon(
-                                                Icons.arrow_forward_ios,
-                                                color: Colors.pink,
-                                                size: 16,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                              ],
+                                            ),
+                                            Row(
+                                              children: const [
+                                                Icon(
+                                                  Icons.battery_full,
+                                                  color: Colors.green,
+                                                  size: 26,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  '95%',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 4),
+                                                Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  color: Colors.pink,
+                                                  size: 16,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 20),
@@ -440,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
             try {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfilPage()), // ✅ tanpa const
+                MaterialPageRoute(builder: (context) => const SayaScreen()), // ✅ tanpa const
               );
               print('>>> Berhasil navigasi ke ProfilPage');
             } catch (e) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'barang_detail.dart';
 import '../widgets/battery_indicator.dart';
+import 'home_screen.dart';
+import 'saya_.screen.dart';
 
 class BarangScreen extends StatefulWidget {
   const BarangScreen({super.key});
@@ -261,30 +263,23 @@ class _BarangScreenState extends State<BarangScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 0) {
-            final currentRoute = ModalRoute.of(context)?.settings.name;
-            if (currentRoute != '/home') {
-              Navigator.pushReplacementNamed(context, '/home');
-            } else {
-              setState(() {
-                _currentIndex = index;
-              });
-            }
-            return;
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+              break;
+            case 1:
+              // Already on BarangScreen, do nothing
+              break;
+            case 2:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const SayaScreen()),
+              );
+              break;
           }
-
-          if (index == 1) {
-            // tetap di halaman barang
-            setState(() {
-              _currentIndex = index;
-            });
-            return;
-          }
-
-          // index lain (profil)
-          setState(() {
-            _currentIndex = index;
-          });
         },
         backgroundColor: Colors.pink[200],
         selectedItemColor: Colors.white,

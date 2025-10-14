@@ -1,2 +1,5 @@
-- [x] Import home_screen.dart in barang_detail.dart
-- [x] Update the onTap handler for home icon (index 0) to use Navigator.pushReplacement with MaterialPageRoute to HomeScreen
+- [x] Definisi lokasi key di home_screen.dart (const LatLng(-7.7828, 110.3671))
+- [x] Tambahkan GestureDetector di sekitar container "KEY" di bottom sheet home_screen.dart
+- [x] Tambahkan navigasi ke BarangDetailScreen saat diketuk dengan parameter: title='KEY', location, address='Jl. DS Nologaten no.ct 14/47 kb. Sleman, Yogyakarta', statusText='Dengan anda'
+- [ ] Test navigasi dari home_screen ke BarangDetailScreen
+- [ ] Verifikasi fungsi lacak (lihat map), edit, dan hapus di BarangDetailScreen
