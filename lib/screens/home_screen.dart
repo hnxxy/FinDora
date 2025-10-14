@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'Tambah_item.dart';
-import 'list_barang.dart';
+import 'barang_screen.dart';
 import 'profil_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -420,13 +420,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
           print('Current Index sesudah: $_currentIndex');
 
-          // Navigasi ke ListBarangPage
+          // Navigasi barang screen
           if (index == 1) {
-            print('>>> Navigasi ke ListBarangPage');
+            print('>>> Navigasi ke barang screen');
             try {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ListBarangPage()), // ✅ tanpa const
+                MaterialPageRoute(builder: (context) => BarangScreen()), // ✅ tanpa const
               );
               print('>>> Berhasil navigasi ke ListBarangPage');
             } catch (e) {
