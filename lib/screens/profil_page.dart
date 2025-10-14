@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Nama kelas tetap ProfilPage sesuai permintaan.
 class ProfilPage extends StatefulWidget {
   const ProfilPage({super.key});
 
@@ -8,385 +9,211 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageState extends State<ProfilPage> {
-  String nama = 'Pengguna FinDora';
-  String email = 'user@findora.com';
-  String telepon = '+62 812 3456 7890';
+  // State yang diperlukan untuk halaman ini
+  bool _bagikanLokasi = true;
+  String _lokasiSaya = 'Jl. Ds Nologaten No ...';
+  String _dariPerangkat = 'iPhone Ini';
 
-  void _editProfil() {
-    final namaController = TextEditingController(text: nama);
-    final emailController = TextEditingController(text: email);
-    final teleponController = TextEditingController(text: telepon);
+  @override
+  Widget build(BuildContext context) {
+    // Warna-warna yang digunakan dalam desain
+    final Color primaryPink = Colors.pink.shade300;
+    final Color softPink = Colors.pink.shade100;
+    final Color secondaryPink = Colors.pink.shade600;
+    final Color backgroundColor = Colors.white;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Profil'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      // AppBar kustom yang lebih minimalis untuk meniru header gambar
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: Container(
+          padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 10),
+          color: primaryPink, // Warna header sesuai gambar
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextField(
-                controller: namaController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama',
-                  prefixIcon: Icon(Icons.person),
+              // Tambahkan tombol 'back' (silang) untuk kembali ke HomeScreen
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                onPressed: () {
+                  // Menggunakan pop untuk kembali ke halaman sebelumnya (HomeScreen)
+                  Navigator.pop(context); 
+                },
+              ),
+              const Text(
+                // Judul "Saya" di tengah atas
+                'Saya',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: teleponController,
-                decoration: const InputDecoration(
-                  labelText: 'Telepon',
-                  prefixIcon: Icon(Icons.phone),
-                ),
-                keyboardType: TextInputType.phone,
+              // Placeholder ikon status (jam 07:00, sinyal, baterai)
+              Row(
+                children: [
+                  const Text('07:00', style: TextStyle(color: Colors.white, fontSize: 14)),
+                  const SizedBox(width: 10),
+                  Icon(Icons.wifi, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Icon(Icons.battery_full, color: Colors.white, size: 20),
+                ],
               ),
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink),
-            onPressed: () {
-              setState(() {
-                nama = namaController.text;
-                email = emailController.text;
-                telepon = teleponController.text;
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profil berhasil diperbarui!')),
-              );
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil Saya'),
-        backgroundColor: Colors.pink[200],
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header dengan foto profil
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 30),
-              decoration: BoxDecoration(
-                color: Colors.pink[200],
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
+      body: Column(
+        children: [
+          // Bagian Peta
+          Expanded(
+            child: Stack(
+              children: [
+                // Placeholder Peta (Penting: Peta di sini harus sesuai dengan desain Anda, bukan GoogleMap real)
+                Container(
+                  color: Colors.grey[800], // Warna gelap untuk peta
+                  child: Center(
+                    child: Text(
+                      'Peta\nJl. Affandi, Plaza Ambarrukmo',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
                 ),
-              ),
-              child: Column(
-                children: [
-                  // Foto profil
-                  Stack(
+                // Pin Lokasi "Saya"
+                Positioned(
+                  top: 150,
+                  left: 80,
+                  child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: 55,
-                          backgroundColor: Colors.pink[100],
-                          child: const Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.pink,
-                          ),
+                      Icon(Icons.location_on, color: Colors.red, size: 40),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 3),
+                          ],
                         ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.pink,
-                            size: 20,
-                          ),
-                        ),
+                        child: const Text('Saya', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
-                  Text(
-                    nama,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                ),
+                // Pin Lokasi "Key"
+                Positioned(
+                  top: 200,
+                  left: 140,
+                  child: Column(
+                    children: [
+                      Icon(Icons.location_on, color: secondaryPink, size: 40),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 3),
+                          ],
+                        ),
+                        child: const Text('Key', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    email,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                // Pin Lokasi "Asrama" (seperti di gambar)
+                Positioned(
+                  top: 300,
+                  right: 40,
+                  child: Icon(Icons.location_on, color: Colors.red, size: 40),
+                ),
+              ],
             ),
-
-            const SizedBox(height: 20),
-
-            // Informasi Akun
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Informasi Akun',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Card Nama
-                  _buildInfoCard(
-                    icon: Icons.person_outline,
-                    title: 'Nama Lengkap',
-                    value: nama,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Card Email
-                  _buildInfoCard(
-                    icon: Icons.email_outlined,
-                    title: 'Email',
-                    value: email,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Card Telepon
-                  _buildInfoCard(
-                    icon: Icons.phone_outlined,
-                    title: 'Nomor Telepon',
-                    value: telepon,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Tombol Edit Profil
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _editProfil,
-                      icon: const Icon(Icons.edit),
-                      label: const Text(
-                        'Edit Profil',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  // Menu Pengaturan
-                  const Text(
-                    'Pengaturan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  _buildMenuTile(
-                    icon: Icons.lock_outline,
-                    title: 'Ubah Password',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Fitur dalam pengembangan')),
-                      );
-                    },
-                  ),
-
-                  _buildMenuTile(
-                    icon: Icons.notifications_outlined,
-                    title: 'Notifikasi',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Fitur dalam pengembangan')),
-                      );
-                    },
-                  ),
-
-                  _buildMenuTile(
-                    icon: Icons.security_outlined,
-                    title: 'Keamanan',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Fitur dalam pengembangan')),
-                      );
-                    },
-                  ),
-
-                  _buildMenuTile(
-                    icon: Icons.help_outline,
-                    title: 'Bantuan',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Fitur dalam pengembangan')),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Tombol Logout
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Keluar'),
-                            content: const Text('Apakah Anda yakin ingin keluar?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Batal'),
-                              ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  // Kembali ke halaman sebelumnya
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Keluar'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.logout, color: Colors.red),
-                      label: const Text(
-                        'Keluar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.red),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard({
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
+          // Bagian Informasi Lokasi (Kartu)
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.only(top: 20, bottom: 40, left: 20, right: 20),
             decoration: BoxDecoration(
-              color: Colors.pink[50],
-              borderRadius: BorderRadius.circular(10),
+              color: softPink, // Warna latar belakang kartu
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, -3),
+                ),
+              ],
             ),
-            child: Icon(icon, color: Colors.pink, size: 24),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                const Text(
+                  'Saya',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                const SizedBox(height: 10),
+                // Baris Lokasi Saya
+                _buildLocationDetailRow(
+                  icon: Icons.send,
+                  label: 'Lokasi Saya',
+                  value: '', // Nilai kosong untuk meniru desain
+                  showArrow: false,
+                ),
+                const Divider(color: Colors.white70, height: 1),
+                // Baris Lokasi
+                _buildLocationDetailRow(
+                  icon: Icons.location_on_outlined,
+                  label: 'Lokasi',
+                  value: _lokasiSaya,
+                  showArrow: false,
+                ),
+                const Divider(color: Colors.white70, height: 1),
+                // Baris Dari
+                _buildLocationDetailRow(
+                  icon: Icons.devices_other,
+                  label: 'Dari',
+                  value: _dariPerangkat,
+                  showArrow: false,
+                ),
+                const Divider(color: Colors.white70, height: 1),
+                // Baris Bagikan Lokasi Saya (Toggle Switch)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.share_outlined, color: secondaryPink),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text(
+                          'Bagikan Lokasi Saya',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      Switch(
+                        value: _bagikanLokasi,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _bagikanLokasi = value;
+                          });
+                        },
+                        activeColor: Colors.green,
+                        inactiveThumbColor: Colors.white,
+                        inactiveTrackColor: Colors.grey.shade400,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -394,40 +221,47 @@ class _ProfilPageState extends State<ProfilPage> {
           ),
         ],
       ),
+      // Bottom Navigation Bar dihapus di sini agar tidak ganda dengan HomeScreen.
     );
   }
 
-  Widget _buildMenuTile({
+  // Widget pembantu untuk baris detail lokasi
+  Widget _buildLocationDetailRow({
     required IconData icon,
-    required String title,
-    required VoidCallback onTap,
+    required String label,
+    required String value,
+    required bool showArrow,
   }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.pink[50],
-            borderRadius: BorderRadius.circular(8),
+    final Color secondaryPink = Colors.pink.shade600;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, color: secondaryPink),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
           ),
-          child: Icon(icon, color: Colors.pink, size: 22),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
+          const Spacer(),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              color: value.isEmpty ? secondaryPink : Colors.grey[700],
+              fontWeight: value.isEmpty ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-        onTap: onTap,
+          if (showArrow)
+            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        ],
       ),
     );
   }
+
+  // Hapus _buildNavBarItem karena Bottom Nav dihilangkan.
 }
