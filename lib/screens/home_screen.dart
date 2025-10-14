@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'Tambah_item.dart';
+import 'list_barang.dart';
+import 'profil_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -122,11 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
       if (permissionGranted != PermissionStatus.granted) return;
     }
 
-    // Set high accuracy for better precision
     await _location.changeSettings(
       accuracy: LocationAccuracy.high,
-      interval: 1000, // Update every 1 second
-      distanceFilter: 5, // Update if moved 5 meters
+      interval: 1000,
+      distanceFilter: 5,
     );
 
     currentLocation = await _location.getLocation();
@@ -182,7 +183,6 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Stack(
                 children: [
-                  // Google Maps
                   GoogleMap(
                     initialCameraPosition: CameraPosition(
                       target: currentLocation != null
@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               currentLocation!.latitude!,
                               currentLocation!.longitude!,
                             )
-                          : const LatLng(-6.2088, 106.8456), // Default Jakarta
+                          : const LatLng(-6.2088, 106.8456),
                       zoom: 16,
                     ),
                     myLocationEnabled: true,
@@ -232,9 +232,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Draggable bottom sheet
                   DraggableScrollableSheet(
-                    initialChildSize: 0.3, // Initial height 30% of screen
-                    minChildSize: 0.3, // Minimum height
-                    maxChildSize: 0.8, // Maximum height to cover most of map
+                    initialChildSize: 0.3,
+                    minChildSize: 0.3,
+                    maxChildSize: 0.8,
                     builder: (context, scrollController) {
                       return Container(
                         decoration: BoxDecoration(
@@ -254,12 +254,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           controller: scrollController,
                           child: Column(
                             children: [
-                              // Handle bar (white slide bar)
                               Container(
-                                margin: const EdgeInsets.only(
-                                  top: 10,
-                                  bottom: 20,
-                                ),
+                                margin: const EdgeInsets.only(top: 10, bottom: 20),
                                 width: 40,
                                 height: 5,
                                 decoration: BoxDecoration(
@@ -267,14 +263,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              // Content
                               Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
                                 child: Column(
                                   children: [
-                                    // KEY Card
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 16,
@@ -285,12 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         borderRadius: BorderRadius.circular(18),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: const Color.fromRGBO(
-                                              0,
-                                              0,
-                                              0,
-                                              0.1,
-                                            ),
+                                            color: const Color.fromRGBO(0, 0, 0, 0.1),
                                             blurRadius: 6,
                                             offset: const Offset(0, 3),
                                           ),
@@ -300,7 +287,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          // Left section: Icon + text
                                           Row(
                                             children: [
                                               Container(
@@ -308,9 +294,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   color: Colors.pink[100],
                                                   shape: BoxShape.circle,
                                                 ),
-                                                padding: const EdgeInsets.all(
-                                                  10,
-                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(10),
                                                 child: const Icon(
                                                   Icons.vpn_key,
                                                   color: Colors.pink,
@@ -352,8 +337,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                             ],
                                           ),
-
-                                          // Right section: Battery + arrow
                                           Row(
                                             children: const [
                                               Icon(
@@ -380,30 +363,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ],
                                       ),
                                     ),
-
                                     const SizedBox(height: 20),
-
-                                    // Tambahkan Barang Button
                                     ElevatedButton(
                                       onPressed: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              const TambahItem(),
+                                          builder: (context) => const TambahItem(),
                                         ),
                                       ),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(
-                                          0xFF8B4C5C,
-                                        ),
-                                        minimumSize: const Size(
-                                          double.infinity,
-                                          56,
-                                        ),
+                                        backgroundColor: const Color(0xFF8B4C5C),
+                                        minimumSize:
+                                            const Size(double.infinity, 56),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            14,
-                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(14),
                                         ),
                                       ),
                                       child: const Text(
@@ -415,10 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                     ),
-
-                                    const SizedBox(
-                                      height: 20,
-                                    ), // Extra space for scrolling
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),
@@ -435,41 +406,51 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // Bottom navigation bar
+      // ✅ Bottom navigation bar diperbaiki
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          // Jika klik Home (index 0) -> navigasi ke '/home'
-          if (index == 0) {
-            final currentRoute = ModalRoute.of(context)?.settings.name;
-            if (currentRoute != '/home') {
-              // Replace current route with /home untuk menghindari penumpukan
-              Navigator.pushReplacementNamed(context, '/home');
-            } else {
-              setState(() {
-                _currentIndex = index;
-              });
-            }
-            return;
-          }
+          print('=== BOTTOM NAV DIKLIK ===');
+          print('Index yang diklik: $index');
+          print('Current Index sebelum: $_currentIndex');
 
-          // Jika klik Pesan (index 1) -> navigasi ke '/barang'
-          if (index == 1) {
-            final currentRoute = ModalRoute.of(context)?.settings.name;
-            if (currentRoute != '/barang') {
-              Navigator.pushNamed(context, '/barang');
-            } else {
-              setState(() {
-                _currentIndex = index;
-              });
-            }
-            return;
-          }
-
-          // Untuk index lain (mis. profil), cukup update state
           setState(() {
             _currentIndex = index;
           });
+
+          print('Current Index sesudah: $_currentIndex');
+
+          // Navigasi ke ListBarangPage
+          if (index == 1) {
+            print('>>> Navigasi ke ListBarangPage');
+            try {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ListBarangPage()), // ✅ tanpa const
+              );
+              print('>>> Berhasil navigasi ke ListBarangPage');
+            } catch (e) {
+              print('ERROR navigasi ListBarangPage: $e');
+            }
+          }
+
+          // Navigasi ke ProfilPage
+          if (index == 2) {
+            print('>>> Navigasi ke ProfilPage');
+            try {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilPage()), // ✅ tanpa const
+              );
+              print('>>> Berhasil navigasi ke ProfilPage');
+            } catch (e) {
+              print('ERROR navigasi ProfilPage: $e');
+            }
+          }
+
+          if (index == 0) {
+            print('>>> Tetap di Home');
+          }
         },
         backgroundColor: Colors.pink[200],
         selectedItemColor: Colors.white,
