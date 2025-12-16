@@ -29,8 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
 
-  bool deviceNotification = true;
-  bool batteryNotification = true;
   int _currentIndex = 0;
 
   @override
@@ -88,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
       for (var doc in snapshot.docs) {
         final data = doc.data();
 
-        // jika belum ada lat/lng → pakai lokasi HP
         final LatLng position = LatLng(
           (data['lat'] ?? currentLocation?.latitude ?? -6.2088).toDouble(),
           (data['lng'] ?? currentLocation?.longitude ?? 106.8456).toDouble(),
@@ -246,7 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     null
                                                 ? LatLng(
                                                     currentLocation!.latitude!,
-                                                    currentLocation!.longitude!,
+                                                    currentLocation!
+                                                        .longitude!,
                                                   )
                                                 : null,
                                             address: '-',
@@ -261,31 +259,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: BorderRadius.circular(18),
+                                        borderRadius:
+                                            BorderRadius.circular(18),
                                       ),
                                       child: Row(
                                         children: [
+                                          // ✅ FIXED CIRCLE AVATAR
                                           CircleAvatar(
-
-                                            backgroundColor: Colors.pink[100],
-                                            child: const Icon(
-                                              Icons.vpn_key,
-                                              color: Colors.pink,
-                                            ),
-
                                             radius: 26,
-                                            backgroundColor: Colors.pink[100],
+                                            backgroundColor:
+                                                Colors.pink[100],
                                             backgroundImage:
                                                 data['imageUrl'] != null
-                                                ? NetworkImage(data['imageUrl'])
-                                                : null,
+                                                    ? NetworkImage(
+                                                        data['imageUrl'])
+                                                    : null,
                                             child: data['imageUrl'] == null
                                                 ? const Icon(
                                                     Icons.image,
                                                     color: Colors.pink,
                                                   )
                                                 : null,
-
                                           ),
                                           const SizedBox(width: 12),
                                           Column(
@@ -323,11 +317,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF8B4C5C),
+                                    backgroundColor:
+                                        const Color(0xFF8B4C5C),
                                     minimumSize:
                                         const Size(double.infinity, 56),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius:
+                                          BorderRadius.circular(14),
                                     ),
                                   ),
                                   child: const Text(
