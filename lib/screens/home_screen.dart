@@ -266,11 +266,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Row(
                                         children: [
                                           CircleAvatar(
+
                                             backgroundColor: Colors.pink[100],
                                             child: const Icon(
                                               Icons.vpn_key,
                                               color: Colors.pink,
                                             ),
+
+                                            radius: 26,
+                                            backgroundColor: Colors.pink[100],
+                                            backgroundImage:
+                                                data['imageUrl'] != null
+                                                ? NetworkImage(data['imageUrl'])
+                                                : null,
+                                            child: data['imageUrl'] == null
+                                                ? const Icon(
+                                                    Icons.image,
+                                                    color: Colors.pink,
+                                                  )
+                                                : null,
+
                                           ),
                                           const SizedBox(width: 12),
                                           Column(
