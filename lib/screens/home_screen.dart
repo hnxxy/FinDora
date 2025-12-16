@@ -31,6 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _currentIndex = 0;
 
+  // ================= NOTIFICATION STATE =================
+  bool deviceNotification = true;
+  bool batteryNotification = true;
+
   @override
   void initState() {
     super.initState();
@@ -81,45 +85,45 @@ class _HomeScreenState extends State<HomeScreen> {
         .where('userId', isEqualTo: user.uid)
         .snapshots()
         .listen((snapshot) {
-      final Set<Marker> markers = {};
+          final Set<Marker> markers = {};
 
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
+          for (var doc in snapshot.docs) {
+            final data = doc.data();
 
-        final LatLng position = LatLng(
-          (data['lat'] ?? currentLocation?.latitude ?? -6.2088).toDouble(),
-          (data['lng'] ?? currentLocation?.longitude ?? 106.8456).toDouble(),
-        );
+            final LatLng position = LatLng(
+              (data['lat'] ?? currentLocation?.latitude ?? -6.2088).toDouble(),
+              (data['lng'] ?? currentLocation?.longitude ?? 106.8456)
+                  .toDouble(),
+            );
 
-        markers.add(
-          Marker(
-            markerId: MarkerId(doc.id),
-            position: position,
-            infoWindow: InfoWindow(
-              title: data['nama'],
-              snippet: 'Device ID: ${data['deviceId']}',
-            ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRose,
-            ),
-            onTap: () => _highlightItem(position),
-          ),
-        );
-      }
+            markers.add(
+              Marker(
+                markerId: MarkerId(doc.id),
+                position: position,
+                infoWindow: InfoWindow(
+                  title: data['nama'],
+                  snippet: 'Device ID: ${data['deviceId']}',
+                ),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueRose,
+                ),
+                onTap: () => _highlightItem(position),
+              ),
+            );
+          }
 
-      setState(() {
-        _markers = markers;
-      });
-    });
+          setState(() {
+            _markers = markers;
+          });
+        });
   }
 
   // ================= MAP EFFECT =================
   void _highlightItem(LatLng position) {
-    final id = const CircleId('highlight');
     setState(() {
       _circles = {
         Circle(
-          circleId: id,
+          circleId: const CircleId('highlight'),
           center: position,
           radius: 30,
           fillColor: Colors.pink.withOpacity(0.2),
@@ -136,6 +140,49 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // ================= NOTIFICATION DIALOG =================
+  void _showNotificationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Notifikasi Perangkat',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+
+            SwitchListTile(
+              title: const Text('Notifikasi Perangkat'),
+              value: deviceNotification,
+              activeColor: Colors.pink,
+              onChanged: (val) {
+                setState(() => deviceNotification = val);
+              },
+            ),
+
+            SwitchListTile(
+              title: const Text('Notifikasi Baterai'),
+              value: batteryNotification,
+              activeColor: Colors.pink,
+              onChanged: (val) {
+                setState(() => batteryNotification = val);
+              },
+            ),
+
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ================= UI =================
   @override
   Widget build(BuildContext context) {
@@ -143,24 +190,34 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // HEADER
+            // ================= HEADER =================
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               color: Colors.pink[200],
-              child: const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'HOME',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'HOME',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.notifications,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: _showNotificationDialog,
+                  ),
+                ],
               ),
             ),
 
-            // MAP + LIST
+            // ================= MAP =================
             Expanded(
               child: Stack(
                 children: [
@@ -180,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onMapCreated: (c) => _controller = c,
                   ),
 
-                  // BOTTOM SHEET
+                  // ================= BOTTOM SHEET =================
                   DraggableScrollableSheet(
                     initialChildSize: 0.35,
                     minChildSize: 0.3,
@@ -239,12 +296,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                           builder: (_) => BarangDetailScreen(
                                             title: data['nama'],
                                             location: pos,
-                                            deviceLocation: currentLocation !=
-                                                    null
+                                            deviceLocation:
+                                                currentLocation != null
                                                 ? LatLng(
                                                     currentLocation!.latitude!,
-                                                    currentLocation!
-                                                        .longitude!,
+                                                    currentLocation!.longitude!,
                                                   )
                                                 : null,
                                             address: '-',
@@ -254,26 +310,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
                                     },
                                     child: Container(
-                                      margin:
-                                          const EdgeInsets.only(bottom: 14),
+                                      margin: const EdgeInsets.only(bottom: 14),
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(18),
+                                        borderRadius: BorderRadius.circular(18),
                                       ),
                                       child: Row(
                                         children: [
-                                          // ✅ FIXED CIRCLE AVATAR
                                           CircleAvatar(
                                             radius: 26,
-                                            backgroundColor:
-                                                Colors.pink[100],
+                                            backgroundColor: Colors.pink[100],
                                             backgroundImage:
                                                 data['imageUrl'] != null
-                                                    ? NetworkImage(
-                                                        data['imageUrl'])
-                                                    : null,
+                                                ? NetworkImage(data['imageUrl'])
+                                                : null,
                                             child: data['imageUrl'] == null
                                                 ? const Icon(
                                                     Icons.image,
@@ -317,13 +368,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color(0xFF8B4C5C),
-                                    minimumSize:
-                                        const Size(double.infinity, 56),
+                                    backgroundColor: const Color(0xFF8B4C5C),
+                                    minimumSize: const Size(
+                                      double.infinity,
+                                      56,
+                                    ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
                                   child: const Text(
@@ -349,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // BOTTOM NAV
+      // ================= BOTTOM NAV =================
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         backgroundColor: Colors.pink[200],
