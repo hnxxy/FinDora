@@ -1,13 +1,15 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'dart:async';
+
 import 'Tambah_item.dart';
 import 'barang_screen.dart';
-import 'saya_.screen.dart';
 import 'barang_detail.dart';
-import '../services/marker_cache.dart';
-import '../data/item_locations.dart';
+import 'saya_.screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,243 +22,148 @@ class _HomeScreenState extends State<HomeScreen> {
   GoogleMapController? _controller;
   LocationData? currentLocation;
   final Location _location = Location();
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Set<Marker> _markers = {};
   Set<Circle> _circles = {};
 
   bool deviceNotification = true;
   bool batteryNotification = true;
   int _currentIndex = 0;
 
-  // Lokasi barang (ambil dari store sehingga konsisten antar layar)
-  LatLng get barangLocation => ItemLocations.get('KEY');
-
-  void _showNotificationDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        bool localDeviceNotification = deviceNotification;
-        bool localBatteryNotification = batteryNotification;
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setDialogState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: const Text(
-                'Notifikasi perangkat',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Notifikasi perangkat',
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
-                      Switch(
-                        value: localDeviceNotification,
-                        onChanged: (value) {
-                          setDialogState(() {
-                            localDeviceNotification = value;
-                          });
-                          setState(() {
-                            deviceNotification = value;
-                          });
-                        },
-                        activeThumbColor: Colors.pink,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Notifikasi Baterai',
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
-                      Switch(
-                        value: localBatteryNotification,
-                        onChanged: (value) {
-                          setDialogState(() {
-                            localBatteryNotification = value;
-                          });
-                          setState(() {
-                            batteryNotification = value;
-                          });
-                        },
-                        activeThumbColor: Colors.pink,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.grey),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
   @override
   void initState() {
     super.initState();
+    _checkUser();
     getCurrentLocation();
+    _listenItems();
   }
 
-  Future<void> getCurrentLocation() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
+  // ================= AUTH CHECK =================
+  void _checkUser() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
 
-    serviceEnabled = await _location.serviceEnabled();
+  // ================= LOCATION =================
+  Future<void> getCurrentLocation() async {
+    bool serviceEnabled = await _location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await _location.requestService();
       if (!serviceEnabled) return;
     }
 
-    permissionGranted = await _location.hasPermission();
+    PermissionStatus permissionGranted = await _location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await _location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) return;
     }
 
-    await _location.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-      distanceFilter: 5,
-    );
-
     currentLocation = await _location.getLocation();
     setState(() {});
-    // Try to fit bounds after we have an initial location
-    _maybeFitBounds();
 
-    _location.onLocationChanged.listen((newLoc) {
+    _location.onLocationChanged.listen((loc) {
       setState(() {
-        currentLocation = newLoc;
+        currentLocation = loc;
       });
-      // Animate camera to include both user and barang when location updates
-      _maybeFitBounds();
     });
   }
 
-  void _maybeFitBounds() {
-    try {
-      if (_controller == null) return;
-      final LatLng item = barangLocation;
+  // ================= FIRESTORE LISTENER =================
+  void _listenItems() {
+    final user = _auth.currentUser;
+    if (user == null) return;
 
-      if (currentLocation == null ||
-          currentLocation!.latitude == null ||
-          currentLocation!.longitude == null) {
-        _controller?.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(target: item, zoom: 16),
+    _firestore
+        .collection('items')
+        .where('userId', isEqualTo: user.uid)
+        .snapshots()
+        .listen((snapshot) {
+      final Set<Marker> markers = {};
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+
+        // jika belum ada lat/lng → pakai lokasi HP
+        final LatLng position = LatLng(
+          (data['lat'] ?? currentLocation?.latitude ?? -6.2088).toDouble(),
+          (data['lng'] ?? currentLocation?.longitude ?? 106.8456).toDouble(),
+        );
+
+        markers.add(
+          Marker(
+            markerId: MarkerId(doc.id),
+            position: position,
+            infoWindow: InfoWindow(
+              title: data['nama'],
+              snippet: 'Device ID: ${data['deviceId']}',
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueRose,
+            ),
+            onTap: () => _highlightItem(position),
           ),
         );
-        return;
       }
 
-      final LatLng device = LatLng(
-        currentLocation!.latitude!,
-        currentLocation!.longitude!,
-      );
-
-      final double south = (item.latitude < device.latitude)
-          ? item.latitude
-          : device.latitude;
-      final double north = (item.latitude > device.latitude)
-          ? item.latitude
-          : device.latitude;
-      final double west = (item.longitude < device.longitude)
-          ? item.longitude
-          : device.longitude;
-      final double east = (item.longitude > device.longitude)
-          ? item.longitude
-          : device.longitude;
-
-      final LatLngBounds bounds = LatLngBounds(
-        southwest: LatLng(south, west),
-        northeast: LatLng(north, east),
-      );
-
-      _controller?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
-    } catch (e) {
-      try {
-        _controller?.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(target: barangLocation, zoom: 16),
-          ),
-        );
-      } catch (_) {}
-    }
+      setState(() {
+        _markers = markers;
+      });
+    });
   }
 
+  // ================= MAP EFFECT =================
   void _highlightItem(LatLng position) {
-    final CircleId id = const CircleId('highlight');
-    final Circle c = Circle(
-      circleId: id,
-      center: position,
-      radius: 30, // meters — visual emphasis
-      fillColor: Colors.pink.withOpacity(0.2),
-      strokeColor: Colors.pink.withOpacity(0.6),
-      strokeWidth: 3,
-    );
+    final id = const CircleId('highlight');
     setState(() {
-      _circles = {c};
+      _circles = {
+        Circle(
+          circleId: id,
+          center: position,
+          radius: 30,
+          fillColor: Colors.pink.withOpacity(0.2),
+          strokeColor: Colors.pink,
+          strokeWidth: 2,
+        ),
+      };
     });
-    // remove highlight after short delay
+
     Timer(const Duration(seconds: 1), () {
-      if (mounted)
-        setState(() => _circles.removeWhere((e) => e.circleId == id));
+      if (mounted) {
+        setState(() => _circles.clear());
+      }
     });
   }
 
+  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            // Header
+            // HEADER
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               color: Colors.pink[200],
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'HOME',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'HOME',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
-                  IconButton(
-                    onPressed: _showNotificationDialog,
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
 
-            // Map and draggable bottom sheet
+            // MAP + LIST
             Expanded(
               child: Stack(
                 children: [
@@ -271,52 +178,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       zoom: 16,
                     ),
                     myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    zoomControlsEnabled: false,
-                    compassEnabled: false,
-                    markers: {
-                      // barang marker (use photo icon if available)
-                      Marker(
-                        markerId: const MarkerId('barang'),
-                        position: barangLocation,
-                        infoWindow: const InfoWindow(title: 'KEY'),
-                        icon:
-                            MarkerCache.getMarker('KEY') ??
-                            BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueRed,
-                            ),
-                      ),
-                    },
+                    markers: _markers,
                     circles: _circles,
-                    onMapCreated: (controller) async {
-                      _controller = controller;
-                      // Ensure map shows both barang and device when possible
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _maybeFitBounds();
-                      });
-
-                      // If location wasn't available earlier, try to obtain once and fit bounds
-                      if (currentLocation == null) {
-                        try {
-                          final LocationData locData = await _location
-                              .getLocation();
-                          if (locData.latitude != null &&
-                              locData.longitude != null) {
-                            setState(() {
-                              currentLocation = locData;
-                            });
-                            _maybeFitBounds();
-                          }
-                        } catch (e) {
-                          // ignore if location not available now
-                        }
-                      }
-                    },
+                    onMapCreated: (c) => _controller = c,
                   ),
 
-                  // Draggable bottom sheet
+                  // BOTTOM SHEET
                   DraggableScrollableSheet(
-                    initialChildSize: 0.3,
+                    initialChildSize: 0.35,
                     minChildSize: 0.3,
                     maxChildSize: 0.8,
                     builder: (context, scrollController) {
@@ -326,212 +195,138 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(20),
                           ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 10,
-                              offset: Offset(0, -2),
-                            ),
-                          ],
                         ),
-                        child: SingleChildScrollView(
-                          controller: scrollController,
-                          child: Column(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.only(
-                                  top: 10,
-                                  bottom: 20,
-                                ),
-                                width: 40,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                child: Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () async {
-                                        // highlight item briefly on the map
-                                        _highlightItem(barangLocation);
-                                        // animate camera to show both user and item
-                                        _maybeFitBounds();
-                                        // short delay so user sees the highlight
-                                        await Future.delayed(
-                                          const Duration(milliseconds: 600),
-                                        );
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => BarangDetailScreen(
-                                              title: 'KEY',
-                                              location: barangLocation,
-                                              // Jika Home sudah punya currentLocation, teruskan ke detail
-                                              deviceLocation:
-                                                  currentLocation != null
-                                                  ? LatLng(
-                                                      currentLocation!
-                                                          .latitude!,
-                                                      currentLocation!
-                                                          .longitude!,
-                                                    )
-                                                  : null,
-                                              address: 'Jl. DS Ekowisata',
-                                              statusText: 'Dengan anda',
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 18,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            18,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color.fromRGBO(
-                                                0,
-                                                0,
-                                                0,
-                                                0.1,
-                                              ),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.pink[100],
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  padding: const EdgeInsets.all(
-                                                    10,
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.vpn_key,
-                                                    color: Colors.pink,
-                                                    size: 28,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      'KEY',
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.black87,
-                                                      ),
-                                                    ),
-                                                    Row(
-                                                      children: const [
-                                                        Icon(
-                                                          Icons.circle,
-                                                          color: Colors.green,
-                                                          size: 10,
-                                                        ),
-                                                        SizedBox(width: 4),
-                                                        Text(
-                                                          'Online',
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors.black54,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: const [
-                                                Icon(
-                                                  Icons.battery_full,
-                                                  color: Colors.green,
-                                                  size: 26,
-                                                ),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  '95%',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black87,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 4),
-                                                Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  color: Colors.pink,
-                                                  size: 16,
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    ElevatedButton(
-                                      onPressed: () => Navigator.push(
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: _firestore
+                              .collection('items')
+                              .where(
+                                'userId',
+                                isEqualTo: _auth.currentUser?.uid,
+                              )
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+
+                            final docs = snapshot.data!.docs;
+
+                            return ListView(
+                              controller: scrollController,
+                              padding: const EdgeInsets.all(16),
+                              children: [
+                                ...docs.map((doc) {
+                                  final data =
+                                      doc.data() as Map<String, dynamic>;
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      final LatLng pos = LatLng(
+                                        (data['lat'] ??
+                                                currentLocation?.latitude ??
+                                                -6.2088)
+                                            .toDouble(),
+                                        (data['lng'] ??
+                                                currentLocation?.longitude ??
+                                                106.8456)
+                                            .toDouble(),
+                                      );
+
+                                      _highlightItem(pos);
+
+                                      Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              const TambahItem(),
-                                        ),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(
-                                          0xFF8B4C5C,
-                                        ),
-                                        minimumSize: const Size(
-                                          double.infinity,
-                                          56,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            14,
+                                          builder: (_) => BarangDetailScreen(
+                                            title: data['nama'],
+                                            location: pos,
+                                            deviceLocation: currentLocation !=
+                                                    null
+                                                ? LatLng(
+                                                    currentLocation!.latitude!,
+                                                    currentLocation!.longitude!,
+                                                  )
+                                                : null,
+                                            address: '-',
+                                            statusText: 'Online',
                                           ),
                                         ),
+                                      );
+                                    },
+                                    child: Container(
+                                      margin:
+                                          const EdgeInsets.only(bottom: 14),
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(18),
                                       ),
-                                      child: const Text(
-                                        'Tambahkan Barang',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundColor: Colors.pink[100],
+                                            child: const Icon(
+                                              Icons.vpn_key,
+                                              color: Colors.pink,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                data['nama'],
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Device: ${data['deviceId']}',
+                                                style: const TextStyle(
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 20),
-                                  ],
+                                  );
+                                }).toList(),
+
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const TambahItem(),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF8B4C5C),
+                                    minimumSize:
+                                        const Size(double.infinity, 56),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Tambahkan Barang',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            );
+                          },
                         ),
                       );
                     },
@@ -543,59 +338,27 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // ✅ Bottom navigation bar diperbaiki
+      // BOTTOM NAV
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          print('=== BOTTOM NAV DIKLIK ===');
-          print('Index yang diklik: $index');
-          print('Current Index sebelum: $_currentIndex');
-
-          setState(() {
-            _currentIndex = index;
-          });
-
-          print('Current Index sesudah: $_currentIndex');
-
-          // Navigasi barang screen
-          if (index == 1) {
-            print('>>> Navigasi ke barang screen');
-            try {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BarangScreen(),
-                ), // ✅ tanpa const
-              );
-              print('>>> Berhasil navigasi ke ListBarangPage');
-            } catch (e) {
-              print('ERROR navigasi ListBarangPage: $e');
-            }
-          }
-
-          // Navigasi ke ProfilPage
-          if (index == 2) {
-            print('>>> Navigasi ke ProfilPage');
-            try {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SayaScreen(),
-                ), // ✅ tanpa const
-              );
-              print('>>> Berhasil navigasi ke ProfilPage');
-            } catch (e) {
-              print('ERROR navigasi ProfilPage: $e');
-            }
-          }
-
-          if (index == 0) {
-            print('>>> Tetap di Home');
-          }
-        },
         backgroundColor: Colors.pink[200],
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
+        onTap: (i) {
+          setState(() => _currentIndex = i);
+          if (i == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => BarangScreen()),
+            );
+          }
+          if (i == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SayaScreen()),
+            );
+          }
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.send), label: ''),

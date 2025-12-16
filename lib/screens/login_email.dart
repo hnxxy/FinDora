@@ -1,8 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'sing_screen.dart';
 
-class LoginEmail extends StatelessWidget {
+class LoginEmail extends StatefulWidget {
   const LoginEmail({super.key});
+
+  @override
+  State<LoginEmail> createState() => _LoginEmailState();
+}
+
+class _LoginEmailState extends State<LoginEmail> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+
+  Future<void> _login() async {
+    try {
+      setState(() => _isLoading = true);
+
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Login gagal')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,125 +48,73 @@ class LoginEmail extends StatelessWidget {
         child: SafeArea(
           child: Stack(
             children: [
-              // 🔙 Tombol kembali ke Login Screen
               Positioned(
                 top: 10,
                 left: 10,
                 child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  icon: const Icon(Icons.arrow_back_ios_new,
+                      color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ),
-
-              // Konten utama halaman login email
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // 🖼 LOGO FINDORA
-                      SizedBox(
-                        height: 200, // diperbesar dari 160
-                        width: 200,
-                        child: Image.asset(
-                          'assets/logo_findora.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-
+                      Image.asset('assets/logo_findora.png', height: 200),
                       const SizedBox(height: 30),
-
                       const Text(
                         'WELCOME',
                         style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 1.5,
-                        ),
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
-
                       const SizedBox(height: 20),
 
-                      // EMAIL INPUT
+                      /// EMAIL
                       TextField(
-                        decoration: InputDecoration(
-                          hintText: 'MASUKKAN EMAIL',
-                          hintStyle: const TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: const Color(0xFFD97D7D),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+                        controller: _emailController,
+                        decoration: _inputDecoration('MASUKKAN EMAIL'),
                       ),
-
                       const SizedBox(height: 20),
 
-                      // PASSWORD INPUT
+                      /// PASSWORD
                       TextField(
+                        controller: _passwordController,
                         obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'MASUKKAN PASSWORD',
-                          hintStyle: const TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: const Color(0xFFD97D7D),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+                        decoration: _inputDecoration('MASUKKAN PASSWORD'),
                       ),
-
                       const SizedBox(height: 30),
 
-                      // LOGIN BUTTON
+                      /// LOGIN BUTTON
                       ElevatedButton(
+                        onPressed: _isLoading ? null : _login,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF6B2B2B),
-                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            vertical: 15,
-                            horizontal: 40,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                              vertical: 15, horizontal: 40),
                         ),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/home');
-                        },
-                        child: const Text(
-                          'LOGIN',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
+                            : const Text('LOGIN'),
                       ),
 
                       const SizedBox(height: 40),
-
-                      // LINK KE SIGNUP
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const SignUpScreen(),
-                            ),
+                                builder: (_) => const SignUpScreen()),
                           );
                         },
                         child: const Text(
                           'Belum memiliki akun? Daftar',
-                          style: TextStyle(color: Colors.black87, fontSize: 14),
+                          style: TextStyle(color: Colors.black87),
                         ),
                       ),
                     ],
@@ -146,6 +124,19 @@ class LoginEmail extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.white),
+      filled: true,
+      fillColor: const Color(0xFFD97D7D),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }

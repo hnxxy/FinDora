@@ -1,7 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  bool _isLoading = false;
+
+  Future<void> _signUp() async {
+    if (_passwordController.text != _confirmController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password tidak sama')),
+      );
+      return;
+    }
+
+    try {
+      setState(() => _isLoading = true);
+
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Registrasi gagal')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,149 +53,62 @@ class SignUpScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Stack(
-            children: [
-              // Tombol kembali di pojok kiri atas
-              Positioned(
-                top: 10,
-                left: 10,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Colors.white,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/logo_findora.png', height: 200),
+                  const SizedBox(height: 30),
+
+                  TextField(
+                    controller: _emailController,
+                    decoration: _inputDecoration('MASUKKAN EMAIL'),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
+                  const SizedBox(height: 20),
 
-              // Konten utama
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // LOGO
-                      SizedBox(
-                        height: 200,
-                        width: 200,
-                        child: Image.asset(
-                          'assets/logo_findora.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      // WELCOME TEXT
-                      const Text(
-                        'WELCOME',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // EMAIL INPUT
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: 'MASUKKAN EMAIL',
-                          hintStyle: const TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: const Color(0xFFD97D7D),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // PASSWORD INPUT
-                      TextField(
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'MASUKKAN PASSWORD',
-                          hintStyle: const TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: const Color(0xFFD97D7D),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // CONFIRM PASSWORD INPUT
-                      TextField(
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'KONFIRMASI PASSWORD',
-                          hintStyle: const TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: const Color(0xFFD97D7D),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      // SIGNUP BUTTON
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6B2B2B),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 15,
-                            horizontal: 40,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/home');
-                        },
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // LOGIN LINK
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          'Sudah memiliki akun? Login',
-                          style: TextStyle(color: Colors.black87, fontSize: 14),
-                        ),
-                      ),
-                    ],
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: _inputDecoration('MASUKKAN PASSWORD'),
                   ),
-                ),
+                  const SizedBox(height: 20),
+
+                  TextField(
+                    controller: _confirmController,
+                    obscureText: true,
+                    decoration: _inputDecoration('KONFIRMASI PASSWORD'),
+                  ),
+                  const SizedBox(height: 30),
+
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _signUp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6B2B2B),
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Sign Up'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.white),
+      filled: true,
+      fillColor: const Color(0xFFD97D7D),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }

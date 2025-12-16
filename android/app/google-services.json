@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "998880249029",
+    "project_id": "findora-474614",
+    "storage_bucket": "findora-474614.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998880249029:android:a638a76dad5c9604695cac",
+        "android_client_info": {
+          "package_name": "com.latihan.pam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-cVV4EkDATZWhW8ygDu2ZY-F4P8S_U3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
