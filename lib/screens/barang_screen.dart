@@ -1,5 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
+import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'barang_detail.dart';
@@ -218,9 +219,10 @@ class _BarangScreenState extends State<BarangScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) => BarangDetailScreen(
+                                              id: 'KEY',
                                               title: 'KEY',
                                               location: barangLocation,
-                                              address: 'Jl. DS Ekowisata',
+                                              address: 'Alamat tidak tersedia',
                                               statusText: 'Dengan anda',
                                             ),
                                           ),

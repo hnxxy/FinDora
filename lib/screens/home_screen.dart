@@ -294,6 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => BarangDetailScreen(
+                                            id: doc.id,
                                             title: data['nama'],
                                             location: pos,
                                             deviceLocation:
@@ -303,8 +304,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     currentLocation!.longitude!,
                                                   )
                                                 : null,
-                                            address: '-',
-                                            statusText: 'Online',
+                                            address: 'Alamat tidak tersedia',
+                                            statusText: 'Dengan anda',
                                           ),
                                         ),
                                       );
