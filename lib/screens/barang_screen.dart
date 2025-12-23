@@ -1,5 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
+<<<<<<< HEAD
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
@@ -8,6 +9,17 @@ import 'barang_detail.dart';
 import '../widgets/battery_indicator.dart';
 import 'home_screen.dart';
 import 'saya_.screen.dart';
+=======
+import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'barang_detail.dart';
+import '../services/marker_cache.dart';
+import '../widgets/battery_indicator.dart';
+import 'home_screen.dart';
+import 'saya_.screen.dart';
+import '../data/item_locations.dart';
+>>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
 
 class BarangScreen extends StatefulWidget {
   const BarangScreen({super.key});
@@ -26,6 +38,7 @@ class _BarangScreenState extends State<BarangScreen> {
   int _currentIndex = 1; // default aktif di halaman Barang
   int batteryLevel = 95; // contoh persentase baterai untuk daftar
   Set<Circle> _circles = {};
+<<<<<<< HEAD
   Set<Marker> _markers = {};
 
   // Default location dari GPS (akan diupdate saat location service berjalan)
@@ -35,11 +48,17 @@ class _BarangScreenState extends State<BarangScreen> {
   // Firestore dan Auth
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+=======
+
+  // Lokasi barang (ambil dari store sehingga konsisten antar layar)
+  LatLng get barangLocation => ItemLocations.get('KEY');
+>>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
 
   @override
   void initState() {
     super.initState();
     _initLocationService();
+<<<<<<< HEAD
     _listenItems();
   }
 
@@ -93,6 +112,8 @@ class _BarangScreenState extends State<BarangScreen> {
             _markers = markers;
           });
         });
+=======
+>>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
   }
 
   Future<void> _initLocationService() async {
@@ -110,6 +131,7 @@ class _BarangScreenState extends State<BarangScreen> {
       }
 
       final loc.LocationData locData = await _location.getLocation();
+<<<<<<< HEAD
       setState(() {
         _currentLocation = locData;
         // Inisialisasi default location dari GPS user
@@ -138,6 +160,21 @@ class _BarangScreenState extends State<BarangScreen> {
       setState(() {
         _defaultLocation = const LatLng(-6.2088, 106.8456);
       });
+=======
+      setState(() => _currentLocation = locData);
+
+      _locationSubscription = _location.onLocationChanged.listen((
+        loc.LocationData newLoc,
+      ) {
+        setState(() => _currentLocation = newLoc);
+        // update highlight bounds if any
+        if (_circles.isNotEmpty) {
+          // no-op for now; leave circle visible while updating location
+        }
+      });
+    } catch (e) {
+      // ignore errors
+>>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
     }
   }
 
@@ -192,12 +229,30 @@ class _BarangScreenState extends State<BarangScreen> {
                   // Google Map
                   GoogleMap(
                     initialCameraPosition: CameraPosition(
+<<<<<<< HEAD
                       target:
                           _defaultLocation ?? const LatLng(-6.2088, 106.8456),
                       zoom: 16,
                     ),
                     markers: _markers,
                     circles: _circles,
+=======
+                      target: barangLocation,
+                      zoom: 16,
+                    ),
+                    markers: {
+                      Marker(
+                        markerId: const MarkerId("barang"),
+                        position: barangLocation,
+                        infoWindow: const InfoWindow(title: "Key"),
+                        icon:
+                            MarkerCache.getMarker('KEY') ??
+                            BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueRed,
+                            ),
+                      ),
+                    },
+>>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
                     onMapCreated: (controller) {
                       _controller = controller;
                       if (_currentLocation != null &&
@@ -241,6 +296,7 @@ class _BarangScreenState extends State<BarangScreen> {
                             ),
                           ],
                         ),
+<<<<<<< HEAD
                         child: StreamBuilder<QuerySnapshot>(
                           stream: _firestore
                               .collection('items')
@@ -434,6 +490,175 @@ class _BarangScreenState extends State<BarangScreen> {
                               ],
                             );
                           },
+=======
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: Column(
+                            children: [
+                              // Handle bar
+                              Container(
+                                margin: const EdgeInsets.only(
+                                  top: 10,
+                                  bottom: 20,
+                                ),
+                                width: 40,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              // Daftar barang (contoh sederhana)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                child: Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () async {
+                                        // briefly highlight the item on the map
+                                        _highlightItem(barangLocation);
+                                        _controller?.animateCamera(
+                                          CameraUpdate.newLatLngZoom(
+                                            barangLocation,
+                                            16,
+                                          ),
+                                        );
+                                        await Future.delayed(
+                                          const Duration(milliseconds: 600),
+                                        );
+                                        // Buka halaman detail untuk item KEY
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => BarangDetailScreen(
+                                              id: 'KEY',
+                                              title: 'KEY',
+                                              location: barangLocation,
+                                              address: 'Alamat tidak tersedia',
+                                              statusText: 'Dengan anda',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 14,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.08,
+                                              ),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.pink[100],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  padding: const EdgeInsets.all(
+                                                    10,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.vpn_key,
+                                                    color: Colors.pink,
+                                                    size: 28,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: const [
+                                                    Text(
+                                                      'KEY',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4),
+                                                    Text(
+                                                      'Lokasi Terakhir',
+                                                      style: TextStyle(
+                                                        color: Colors.black54,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.pink[100],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Dengan anda',
+                                                    style: TextStyle(
+                                                      color: Colors.black87,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                // Battery indicator widget
+                                                BatteryIndicator(
+                                                  level: batteryLevel,
+                                                  width: 28,
+                                                  height: 12,
+                                                  fillColor: Colors.black,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+>>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
                         ),
                       );
                     },
