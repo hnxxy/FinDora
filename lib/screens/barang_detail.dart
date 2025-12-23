@@ -322,21 +322,12 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                             radius: 60,
                             backgroundColor: Colors.pink[100],
                             backgroundImage: _lockImage != null
-<<<<<<< HEAD
                                 ? FileImage(_lockImage!) as ImageProvider
                                 : (_currentImageUrl != null &&
                                           _currentImageUrl!.isNotEmpty
                                       ? NetworkImage(_currentImageUrl!)
                                             as ImageProvider
                                       : null),
-=======
-                                ? FileImage(_lockImage!)
-                                : (_currentImageUrl != null &&
-                                              _currentImageUrl!.isNotEmpty
-                                          ? NetworkImage(_currentImageUrl!)
-                                          : null)
-                                      as ImageProvider?,
->>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
                             child:
                                 (_lockImage == null &&
                                     (_currentImageUrl == null ||
@@ -609,7 +600,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                     CircleAvatar(
                                       radius: 32,
                                       backgroundColor: Colors.white,
-<<<<<<< HEAD
                                       backgroundImage: _lockImage != null
                                           ? FileImage(_lockImage!)
                                                 as ImageProvider
@@ -622,16 +612,6 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                           (_lockImage == null &&
                                               (_currentImageUrl == null ||
                                                   _currentImageUrl!.isEmpty))
-=======
-                                      backgroundImage:
-                                          (_currentImageUrl != null &&
-                                              _currentImageUrl!.isNotEmpty)
-                                          ? NetworkImage(_currentImageUrl!)
-                                          : null,
-                                      child:
-                                          (_currentImageUrl == null ||
-                                              _currentImageUrl!.isEmpty)
->>>>>>> e89f8af8ef25e0991779b477d20a0b99a9eb2a66
                                           ? const Icon(
                                               Icons.vpn_key,
                                               color: Colors.pink,
