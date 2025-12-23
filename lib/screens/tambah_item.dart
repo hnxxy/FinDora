@@ -59,8 +59,7 @@ class _TambahItemState extends State<TambahItem> {
                     imageQuality: 70,
                   );
                   if (picked != null) {
-                    final saved =
-                        await _saveImagePermanently(picked.path);
+                    final saved = await _saveImagePermanently(picked.path);
                     setState(() {
                       _imageFile = saved;
                     });
@@ -77,8 +76,7 @@ class _TambahItemState extends State<TambahItem> {
                     imageQuality: 70,
                   );
                   if (picked != null) {
-                    final saved =
-                        await _saveImagePermanently(picked.path);
+                    final saved = await _saveImagePermanently(picked.path);
                     setState(() {
                       _imageFile = saved;
                     });
@@ -95,11 +93,10 @@ class _TambahItemState extends State<TambahItem> {
 
   // ================= SIMPAN KE FIRESTORE =================
   Future<void> _tambahItem() async {
-    if (_nameController.text.isEmpty ||
-        _deviceIdController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Semua field wajib diisi')),
-      );
+    if (_nameController.text.isEmpty || _deviceIdController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Semua field wajib diisi')));
       return;
     }
 
@@ -130,9 +127,9 @@ class _TambahItemState extends State<TambahItem> {
 
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menambahkan barang: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal menambahkan barang: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -176,8 +173,8 @@ class _TambahItemState extends State<TambahItem> {
                 child: Container(
                   width: 110,
                   height: 110,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFD88B8B),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD88B8B),
                     shape: BoxShape.circle,
                   ),
                   child: _imageFile == null
@@ -224,7 +221,9 @@ class _TambahItemState extends State<TambahItem> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6B2B2B),
                   padding: const EdgeInsets.symmetric(
-                      vertical: 15, horizontal: 40),
+                    vertical: 15,
+                    horizontal: 40,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

@@ -144,40 +144,116 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showNotificationDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Notifikasi Perangkat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            SwitchListTile(
-              title: const Text('Notifikasi Perangkat'),
-              value: deviceNotification,
-              activeColor: Colors.pink,
-              onChanged: (val) {
-                setState(() => deviceNotification = val);
-              },
-            ),
-
-            SwitchListTile(
-              title: const Text('Notifikasi Baterai'),
-              value: batteryNotification,
-              activeColor: Colors.pink,
-              onChanged: (val) {
-                setState(() => batteryNotification = val);
-              },
-            ),
-
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.grey[50],
+          title: Row(
+            children: [
+              const Text(
+                'Notifikasi Perangkat',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.close, size: 24, color: Colors.black54),
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              // Notifikasi Perangkat
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Notifikasi\nPerangkat',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                        height: 1.3,
+                      ),
+                    ),
+                    Switch(
+                      value: deviceNotification,
+                      activeColor: Colors.pink,
+                      onChanged: (val) {
+                        setStateDialog(() => deviceNotification = val);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Notifikasi Baterai
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Notifikasi\nBaterai',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                        height: 1.3,
+                      ),
+                    ),
+                    Switch(
+                      value: batteryNotification,
+                      activeColor: Colors.pink,
+                      onChanged: (val) {
+                        setStateDialog(() => batteryNotification = val);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -192,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // ================= HEADER =================
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               color: Colors.pink[200],
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -271,6 +347,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               controller: scrollController,
                               padding: const EdgeInsets.all(16),
                               children: [
+                                Center(
+                                  child: Container(
+                                    width: 50,
+                                    height: 4,
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
                                 ...docs.map((doc) {
                                   final data =
                                       doc.data() as Map<String, dynamic>;
@@ -334,24 +421,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 : null,
                                           ),
                                           const SizedBox(width: 12),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                data['nama'],
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  data['nama'],
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                'Device: ${data['deviceId']}',
-                                                style: const TextStyle(
-                                                  color: Colors.black54,
+                                                Text(
+                                                  'Device: ${data['deviceId']}',
+                                                  style: const TextStyle(
+                                                    color: Colors.black54,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
+                                          ),
+                                          const Icon(
+                                            Icons.chevron_right,
+                                            color: Colors.black45,
+                                            size: 28,
                                           ),
                                         ],
                                       ),

@@ -758,7 +758,7 @@ class _BarangDetailScreenState extends State<BarangDetailScreen> {
                                             _notificationEnabled = value;
                                           });
                                         },
-                                        activeColor: Colors.pink[300],
+                                        activeColor: Colors.pink,
                                       ),
                                     ],
                                   ),

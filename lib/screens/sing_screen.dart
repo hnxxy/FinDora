@@ -17,9 +17,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> _signUp() async {
     if (_passwordController.text != _confirmController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password tidak sama')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Password tidak sama')));
       return;
     }
 
@@ -33,9 +33,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Registrasi gagal')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Registrasi gagal')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -53,47 +53,70 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/logo_findora.png', height: 200),
-                  const SizedBox(height: 30),
-
-                  TextField(
-                    controller: _emailController,
-                    decoration: _inputDecoration('MASUKKAN EMAIL'),
+          child: Stack(
+            children: [
+              // Back button
+              Positioned(
+                top: 10,
+                left: 10,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
                   ),
-                  const SizedBox(height: 20),
-
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: _inputDecoration('MASUKKAN PASSWORD'),
-                  ),
-                  const SizedBox(height: 20),
-
-                  TextField(
-                    controller: _confirmController,
-                    obscureText: true,
-                    decoration: _inputDecoration('KONFIRMASI PASSWORD'),
-                  ),
-                  const SizedBox(height: 30),
-
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _signUp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6B2B2B),
-                    ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Sign Up'),
-                  ),
-                ],
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
-            ),
+              // Main content
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/logo_findora.png', height: 200),
+                      const SizedBox(height: 30),
+
+                      TextField(
+                        controller: _emailController,
+                        decoration: _inputDecoration('MASUKKAN EMAIL'),
+                      ),
+                      const SizedBox(height: 20),
+
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: _inputDecoration('MASUKKAN PASSWORD'),
+                      ),
+                      const SizedBox(height: 20),
+
+                      TextField(
+                        controller: _confirmController,
+                        obscureText: true,
+                        decoration: _inputDecoration('KONFIRMASI PASSWORD'),
+                      ),
+                      const SizedBox(height: 30),
+
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : _signUp,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6B2B2B),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 15,
+                            horizontal: 40,
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text('SIGN UP'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

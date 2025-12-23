@@ -264,6 +264,17 @@ class _BarangScreenState extends State<BarangScreen> {
                               controller: scrollController,
                               padding: const EdgeInsets.all(16),
                               children: [
+                                Center(
+                                  child: Container(
+                                    width: 50,
+                                    height: 4,
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
                                 ...docs.map((doc) {
                                   final data =
                                       doc.data() as Map<String, dynamic>;
@@ -342,32 +353,23 @@ class _BarangScreenState extends State<BarangScreen> {
                                         children: [
                                           Row(
                                             children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.pink[100],
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                padding: const EdgeInsets.all(
-                                                  10,
-                                                ),
-                                                child: data['imageUrl'] != null
-                                                    ? ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              50,
-                                                            ),
-                                                        child: Image.network(
-                                                          data['imageUrl'],
-                                                          fit: BoxFit.cover,
-                                                          width: 28,
-                                                          height: 28,
-                                                        ),
+                                              CircleAvatar(
+                                                radius: 28,
+                                                backgroundColor:
+                                                    Colors.grey[200],
+                                                backgroundImage:
+                                                    data['imageUrl'] != null
+                                                    ? NetworkImage(
+                                                        data['imageUrl'],
                                                       )
-                                                    : const Icon(
+                                                    : null,
+                                                child: data['imageUrl'] == null
+                                                    ? const Icon(
                                                         Icons.image,
-                                                        color: Colors.pink,
-                                                        size: 28,
-                                                      ),
+                                                        color: Colors.grey,
+                                                        size: 24,
+                                                      )
+                                                    : null,
                                               ),
                                               const SizedBox(width: 12),
                                               Column(
@@ -401,30 +403,58 @@ class _BarangScreenState extends State<BarangScreen> {
                                               Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 6,
+                                                      horizontal: 14,
+                                                      vertical: 8,
                                                     ),
                                                 decoration: BoxDecoration(
-                                                  color: Colors.pink[100],
+                                                  color: Colors.pink[300],
                                                   borderRadius:
-                                                      BorderRadius.circular(12),
+                                                      BorderRadius.circular(20),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.pink
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 4,
+                                                      offset: const Offset(
+                                                        0,
+                                                        2,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                                 child: const Text(
                                                   'Dengan anda',
                                                   style: TextStyle(
-                                                    color: Colors.black87,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 13,
+                                                    letterSpacing: 0.3,
                                                   ),
                                                 ),
                                               ),
-                                              const SizedBox(width: 8),
+                                              const SizedBox(width: 12),
                                               // Battery indicator widget
-                                              BatteryIndicator(
-                                                level: batteryLevel,
-                                                width: 28,
-                                                height: 12,
-                                                fillColor: Colors.black,
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[100],
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color: Colors.grey[300]!,
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: BatteryIndicator(
+                                                  level: batteryLevel,
+                                                  width: 24,
+                                                  height: 10,
+                                                  fillColor: Colors.black87,
+                                                ),
                                               ),
                                             ],
                                           ),
